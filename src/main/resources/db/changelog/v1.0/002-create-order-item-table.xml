@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="002-create-order-item-table" author="youssef">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="order_item"/>
+            </not>
+        </preConditions>
+        <createTable tableName="order_item">
+            <column name="id" type="UUID">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="order_id" type="UUID">
+                <constraints nullable="false" foreignKeyName="fk_order_item_order" references="order(id)"/>
+            </column>
+            <column name="product_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="product_title" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="unit_price" type="DECIMAL(10,2)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="quantity" type="INTEGER">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="TIMESTAMP"/>
+            <column name="updated_at" type="TIMESTAMP"/>
+            <column name="created_by" type="VARCHAR(255)"/>
+            <column name="updated_by" type="VARCHAR(255)"/>
+        </createTable>
+
+        <rollback>
+            <dropTable tableName="order_item"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

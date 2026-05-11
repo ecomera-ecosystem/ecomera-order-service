@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="001-create-order-table" author="youssef">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="order"/>
+            </not>
+        </preConditions>
+        <createTable tableName="order">
+            <column name="id" type="UUID">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="user_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status" type="VARCHAR(20)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="total_price" type="DECIMAL(10,2)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="TIMESTAMP"/>
+            <column name="updated_at" type="TIMESTAMP"/>
+            <column name="created_by" type="VARCHAR(255)"/>
+            <column name="updated_by" type="VARCHAR(255)"/>
+        </createTable>
+
+        <rollback>
+            <dropTable tableName="order"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>
