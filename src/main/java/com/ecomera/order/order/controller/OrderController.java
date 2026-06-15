@@ -38,9 +38,10 @@ public class OrderController {
     @ApiResponse(responseCode = "401", description = "Unauthorized")
     public ResponseEntity<OrderDto> create(
             @RequestHeader("X-User-Id") UUID userId,
+            @RequestHeader("X-User-Email") String email,
             @Valid @RequestBody OrderCreateDto dto) {
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(orderService.create(userId, dto));
+                .body(orderService.create(userId, email, dto));
     }
 
     @PostMapping("/checkout")
@@ -49,9 +50,10 @@ public class OrderController {
     @ApiResponse(responseCode = "400", description = "Cart is empty or insufficient stock")
     @ApiResponse(responseCode = "401", description = "Unauthorized")
     public ResponseEntity<OrderDto> checkout(
-            @RequestHeader("X-User-Id") UUID userId) {
+            @RequestHeader("X-User-Id") UUID userId,
+            @RequestHeader("X-User-Email") String email) {
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(orderService.checkout(userId));
+                .body(orderService.checkout(userId, email));
     }
 
     @PatchMapping("/{id}")

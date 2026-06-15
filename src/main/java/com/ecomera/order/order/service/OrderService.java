@@ -16,6 +16,7 @@ import com.ecomera.order.order.mapper.OrderMapper;
 import com.ecomera.order.order.repository.OrderRepository;
 import com.ecomera.order.shared.common.exception.BusinessException;
 import com.ecomera.order.shared.common.exception.ResourceNotFoundException;
+import com.ecomera.order.shared.kafka.NotificationEventProducer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
@@ -41,9 +42,10 @@ public class OrderService {
     private final OrderMapper orderMapper;
     private final ProductServiceClient productServiceClient;
     private final CartServiceClient cartServiceClient;
+    private final NotificationEventProducer notificationProducer;
 
     @Transactional
-    public OrderDto create(UUID userId, OrderCreateDto dto) {
+    public OrderDto create(UUID userId, String email, OrderCreateDto dto) {
         if (dto.items() == null || dto.items().isEmpty()) {
             throw new BusinessException("Cannot create order with empty items");
         }
@@ -70,11 +72,20 @@ public class OrderService {
         order.recalculateTotal();
         Order saved = orderRepository.save(order);
         log.info("Order created: {} for user: {}", saved.getId(), userId);
+
+        notificationProducer.sendNotification(
+                email,
+                "Order Created",
+                "Your order #" + saved.getId() + " has been created with status " + saved.getStatus() + ".",
+                "EMAIL",
+                "ecomera-order-service"
+        );
+
         return orderMapper.toDto(saved);
     }
 
     @Transactional
-    public OrderDto checkout(UUID userId) {
+    public OrderDto checkout(UUID userId, String email) {
         CartDto cart = cartServiceClient.getCart(userId);
         if (cart == null || cart.items() == null || cart.items().isEmpty()) {
             throw new BusinessException("Cannot checkout with an empty cart");
@@ -107,6 +118,15 @@ public class OrderService {
         Order saved = orderRepository.save(order);
         cartServiceClient.clearCart(userId);
         log.info("Checkout completed for user {}. Order id: {}", userId, saved.getId());
+
+        notificationProducer.sendNotification(
+                email,
+                "Order Checkout",
+                "Your order #" + saved.getId() + " has been placed successfully. Total: " + saved.getTotalPrice() + " MAD.",
+                "EMAIL",
+                "ecomera-order-service"
+        );
+
         return orderMapper.toDto(saved);
     }
 
@@ -120,6 +140,15 @@ public class OrderService {
         orderMapper.updateEntityFromDto(dto, order);
         Order saved = orderRepository.save(order);
         log.info("Order {} status updated to: {}", id, saved.getStatus());
+
+        notificationProducer.sendNotification(
+                saved.getUserId().toString(),
+                "Order Status Updated",
+                "Your order #" + saved.getId() + " is now " + saved.getStatus() + ".",
+                "EMAIL",
+                "ecomera-order-service"
+        );
+
         return orderMapper.toDto(saved);
     }
 
