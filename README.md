@@ -8,6 +8,8 @@
 ![OpenFeign](https://img.shields.io/badge/OpenFeign-Integrated-6DB33F)
 ![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?logo=docker&logoColor=white)
 ![License](https://img.shields.io/badge/License-MIT-yellow?logo=open-source-initiative&logoColor=white)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=ecomera-order-service&metric=coverage)](https://sonarcloud.io/summary/new_code?id=ecomera-order-service)
+[![Quality Gate](https://sonarcloud.io/api/project_badges/measure?project=ecomera-order-service&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=ecomera-order-service)
 
 Order management microservice for the Ecomera ecosystem. Handles order lifecycle from checkout through delivery with product and cart service integration via OpenFeign.
 
