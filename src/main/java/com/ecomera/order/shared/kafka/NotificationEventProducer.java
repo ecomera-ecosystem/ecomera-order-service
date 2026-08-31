@@ -1,6 +1,5 @@
 package com.ecomera.order.shared.kafka;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,10 +27,15 @@ public class NotificationEventProducer {
                     "type", type,
                     "sourceService", sourceService
             ));
-            kafkaTemplate.send(TOPIC, payload);
+            kafkaTemplate.send(TOPIC, payload)
+                    .whenComplete((result, ex) -> {
+                        if (ex != null) {
+                            log.error("Failed to send notification '{}' to Kafka", subject, ex);
+                        }
+                    });
             log.info("Notification event sent to topic {}: {}", TOPIC, subject);
-        } catch (JsonProcessingException e) {
-            log.error("Failed to serialize notification event", e);
+        } catch (Exception e) {
+            log.error("Notification '{}' skipped — Kafka unavailable or serialization failed", subject, e);
         }
     }
 }
